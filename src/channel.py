@@ -13,13 +13,58 @@ class Channel:
 
     def __init__(self, channel_id: str) -> None:
         """Экземпляр инициализируется id канала. Дальше все данные будут подтягиваться по API."""
-        self.__channel_id = channel_id
-        self.__channel_info = self._fetch_channel_info()
-        self.__title = self.__channel_info['items'][0]['snippet']['title']
-        self.__description = self.__channel_info['items'][0]['snippet']['description']
-        self.__subscriptions = self.__channel_info['items'][0]['statistics']['subscriberCount']
-        self.__video_count = self.__channel_info['items'][0]['statistics']['videoCount']
-        self.__view_count = self.__channel_info['items'][0]['statistics']['viewCount']
+        self.__channel_id: str = channel_id
+        self.__channel_info: dict = self._fetch_channel_info()
+        self.__title: str = self.__channel_info['items'][0]['snippet']['title']
+        self.__description: str = self.__channel_info['items'][0]['snippet']['description']
+        self.__subscriptions: int = int(self.__channel_info['items'][0]['statistics']['subscriberCount'])
+        self.__video_count: int = int(self.__channel_info['items'][0]['statistics']['videoCount'])
+        self.__view_count: int = int(self.__channel_info['items'][0]['statistics']['viewCount'])
+
+    def __str__(self):
+        return f'{self.__title} ({self.url})'
+
+    def __add__(self, other):
+        if isinstance(other, Channel):
+            return self.__subscriptions + other.__subscriptions
+        else:
+            raise TypeError("Unsupported operand type. Can only concatenate Channel objects.")
+
+    def __sub__(self, other):
+        if isinstance(other, Channel):
+            return self.__subscriptions - other.__subscriptions
+        else:
+            raise TypeError("Unsupported operand type. Can only concatenate Channel objects.")
+
+    def __gt__(self, other):
+        if isinstance(other, Channel):
+            return self.__subscriptions > other.__subscriptions
+        else:
+            raise TypeError("Unsupported operand type. Can only concatenate Channel objects.")
+
+    def __lt__(self, other):
+        if isinstance(other, Channel):
+            return self.__subscriptions < other.__subscriptions
+        else:
+            raise TypeError("Unsupported operand type. Can only concatenate Channel objects.")
+
+    def __ge__(self, other):
+        if isinstance(other, Channel):
+            return self.__subscriptions >= other.__subscriptions
+        else:
+            raise TypeError("Unsupported operand type. Can only concatenate Channel objects.")
+
+    def __le__(self, other):
+        if isinstance(other, Channel):
+            return self.__subscriptions <= other.__subscriptions
+        else:
+            raise TypeError("Unsupported operand type. Can only concatenate Channel objects.")
+
+    def __eq__(self, other):
+        if isinstance(other, Channel):
+            return self.__subscriptions == other.__subscriptions
+        else:
+            raise TypeError("Unsupported operand type. Can only concatenate Channel objects.")
 
     @property
     def url(self):
@@ -53,7 +98,7 @@ class Channel:
         """Выводит в консоль информацию о канале."""
         print(json.dumps(self.__channel_info, indent=2, ensure_ascii=False))
 
-    def _fetch_channel_info(self):
+    def _fetch_channel_info(self) -> dict:
         return Channel.__youtube.channels().list(id=self.__channel_id, part='snippet,statistics').execute()
 
     @classmethod
