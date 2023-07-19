@@ -67,6 +67,10 @@ class Channel:
             raise TypeError("Unsupported operand type. Can only concatenate Channel objects.")
 
     @property
+    def youtube(self):
+        return Channel.__youtube
+
+    @property
     def url(self):
         return f'https://www.youtube.com/channel/{self.__channel_id}'
 
