@@ -1,7 +1,7 @@
-from src.channel import Channel
+from src.channel import APIMixin
 
 
-class Video(Channel):
+class Video(APIMixin):
     def __init__(self, video_id):
         self.__video_id: str = video_id
         self.__video_info: dict = self._fetch_video_info()
@@ -14,9 +14,9 @@ class Video(Channel):
         return self.__video_title
 
     def _fetch_video_info(self) -> dict:
-        return super().youtube.videos().list(part='snippet,statistics,contentDetails,topicDetails',
-                                             id=self.__video_id
-                                             ).execute()
+        return self.get_service().videos().list(part='snippet,statistics,contentDetails,topicDetails',
+                                                id=self.__video_id
+                                                ).execute()
 
     @property
     def url(self):
@@ -35,7 +35,7 @@ class PLVideo(Video):
             raise ValueError('The video you selected is not in this playlist. Please provide the correct id.')
 
     def _fetch_playlist_info(self) -> dict:
-        return super(Video, self).youtube.playlistItems().list(playlistId=self.__playlist_id,
-                                                               part='contentDetails',
-                                                               maxResults=50,
-                                                               ).execute()
+        return self.get_service().playlistItems().list(playlistId=self.__playlist_id,
+                                                       part='contentDetails',
+                                                       maxResults=50,
+                                                       ).execute()

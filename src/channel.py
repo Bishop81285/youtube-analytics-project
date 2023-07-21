@@ -3,13 +3,21 @@ import os
 
 from googleapiclient.discovery import build
 
-api_key: str = os.getenv('YT_API_KEY')
+
+class APIMixin:
+    """Класс-миксин для предоставления доступа к API."""
+
+    __API_KEY: str = os.getenv('YT_API_KEY')
+
+    @classmethod
+    def get_service(cls) -> build:
+        """Возвращает объект для работы с API youtube."""
+        service = build('youtube', 'v3', developerKey=cls.__API_KEY)
+        return service
 
 
-class Channel:
+class Channel(APIMixin):
     """Класс для ютуб-канала"""
-
-    __youtube = build('youtube', 'v3', developerKey=api_key)
 
     def __init__(self, channel_id: str) -> None:
         """Экземпляр инициализируется id канала. Дальше все данные будут подтягиваться по API."""
@@ -67,10 +75,6 @@ class Channel:
             raise TypeError("Unsupported operand type. Can only concatenate Channel objects.")
 
     @property
-    def youtube(self):
-        return Channel.__youtube
-
-    @property
     def url(self):
         return f'https://www.youtube.com/channel/{self.__channel_id}'
 
@@ -103,14 +107,7 @@ class Channel:
         print(json.dumps(self.__channel_info, indent=2, ensure_ascii=False))
 
     def _fetch_channel_info(self) -> dict:
-        return Channel.__youtube.channels().list(id=self.__channel_id, part='snippet,statistics').execute()
-
-    @classmethod
-    def get_service(cls):
-        """
-        Класс-метод, возвращающий объект для работы с YouTube API
-        """
-        return cls.__youtube
+        return self.get_service().channels().list(id=self.__channel_id, part='snippet,statistics').execute()
 
     def to_json(self, filename: str) -> None:
         """
