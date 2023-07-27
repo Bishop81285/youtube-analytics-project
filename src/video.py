@@ -4,11 +4,20 @@ from src.channel import APIMixin
 class Video(APIMixin):
     def __init__(self, video_id):
         self.__video_id: str = video_id
-        self.__video_info: dict = self._fetch_video_info()
-        self.__video_title: str = self.__video_info['items'][0]['snippet']['title']
-        self.__view_count: int = self.__video_info['items'][0]['statistics']['viewCount']
-        self.__like_count: int = self.__video_info['items'][0]['statistics']['likeCount']
-        self.__comment_count: int = self.__video_info['items'][0]['statistics']['commentCount']
+        try:
+            self.__video_info: dict = self._fetch_video_info()
+            self._check_video_info()
+        except ValueError:
+            print('Invalid video id.')
+            self.__video_title = None
+            self.__view_count = None
+            self.__like_count = None
+            self.__comment_count = None
+        else:
+            self.__video_title: str = self.__video_info['items'][0]['snippet']['title']
+            self.__view_count: int = self.__video_info['items'][0]['statistics']['viewCount']
+            self.__like_count: int = self.__video_info['items'][0]['statistics']['likeCount']
+            self.__comment_count: int = self.__video_info['items'][0]['statistics']['commentCount']
 
     def __str__(self):
         return self.__video_title
@@ -21,6 +30,18 @@ class Video(APIMixin):
     @property
     def url(self):
         return f'https://youtu.be/{self.__video_id}'
+
+    @property
+    def title(self):
+        return self.__video_title
+
+    @property
+    def like_count(self):
+        return self.__like_count
+
+    def _check_video_info(self):
+        if not self.__video_info['items']:
+            raise ValueError
 
 
 class PLVideo(Video):
